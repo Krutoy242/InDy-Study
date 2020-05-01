@@ -2,3 +2,6 @@
 
 # InDy-Study
 Minecraft mod Integrated Dynamics tests and unfinished studying
+
+# Tutorials
+- Lern Haskell https://tryhaskell.org/
