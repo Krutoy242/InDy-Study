@@ -1,8 +1,10 @@
+{-# LANGUAGE OverloadedStrings #-}
 module InDyModel where
 
 import Data.Typeable
 import Data.List
 import Data.Text
+import qualified Data.Text as T
 
 ------------------------------------------------------    
 --   Simulation of ID functional model in Haskell   --
@@ -45,8 +47,8 @@ op_disj :: Bool -> Bool -> Bool
 op_disj a b = a || b
 
 -- Choice operator
-op_choice :: Bool -> a -> a -> a
-op_choice x a b = if x then a else b
+choice :: Bool -> a -> a -> a
+choice x a b = if x then a else b
 
 -- Identity operator
 op_id :: a -> a
@@ -76,14 +78,9 @@ flip_op_map = flip op_map
 op_reduce :: (a -> b -> b) -> [a] -> b -> b
 op_reduce op seq val = Data.List.foldr op val seq
 
-head :: [a] -> a
-head = Data.List.head
-
-tail :: [a] -> [a]
-tail = Data.List.tail
-
-split_on :: Text -> Text -> [Text]
-split_on = Data.Text.splitOn
+-- Split on operator
+split_on :: Text -> Text -> [String]
+split_on d s = list_map T.unpack (T.splitOn d s)
 
 
 ------------------------------------------------------
