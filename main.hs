@@ -1,28 +1,40 @@
 import InDyModel
+import Data.Text
 
 -- Imitation of command string
 str = ". toInt increment"
 
-strAliases = ". pipe|$ apply|' flip"
+strAliases = "^\. pipe|$ apply|' flip"
 
 -- Words and their respective long names
-listAliases = split '|' strAliases
+listAliases = split_on '|' strAliases
 
 -- reduce1 :: op -> list -> any
 
--- Replace string with another
-repl :: String -> String
--- r s = get_or_default (filter makePredicate(s) listAliases) 0 s
--- r s = reduce makePredicate(s) listAliases s
-repl = 
+-- Replace regex toStr inStr
 
--- filter predicate list
+replaceWhole :: a -> a -> a -> a
+-- replaceWhole a b c = choice (a == c) b a
+replaceWhole = replace
+
+alsRgx :: String -> String -- alsRgx(a) = head words(a)
+alsRgx = pipe words head
+
+alsWrd :: String -> String -- alsWrd(a) = head tail words(a)
+alsWrd = pipe (pipe words tail) head
+
+--words :: String -> [String]
+
+-- "." -> "^\. pipe" -> "pipe"
+reducer :: String -> String -> String
+-- r a b = replaceWhole (alsRgx(b)) (alsWrd(b)) a
+reducer = flip (pipe2 alsRgx alsWrd replaceWhole)
 
 -- Replace each short aliase with long
+-- Replace string with another
+-- Folding each aliase pair, changing if it match pattern
 replList :: [String] -> [String]
--- r(l) = map repl l
-replList = map repl
--- replList = pipe repl (flip map enumAliases)
+replList = list_map (reduce reducer listAliases)
 
 main :: IO()
 main = do

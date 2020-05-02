@@ -76,11 +76,15 @@ flip_op_map = flip op_map
 op_reduce :: (a -> b -> b) -> [a] -> b -> b
 op_reduce op seq val = Data.List.foldr op val seq
 
-op_head :: [a] -> a
-op_head = Data.List.head
+head :: [a] -> a
+head = Data.List.head
 
-op_tail :: [a] -> [a]
-op_tail = Data.List.tail
+tail :: [a] -> [a]
+tail = Data.List.tail
+
+split_on :: Text -> Text -> [Text]
+split_on = Data.Text.splitOn
+
 
 ------------------------------------------------------
 --                    Operator things               --

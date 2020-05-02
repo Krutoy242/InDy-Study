@@ -50,6 +50,8 @@ H[a,b]: G(a, b, F(a,b))
 Pipe3[F,G,H,I]:
 	= Apply3(I, F(a), G(a), H(a))
 
+h a = f(g(a))
+
 
 // -------------------------------------------------------------------------------------
 // Useful operators
@@ -160,6 +162,11 @@ Pipe2(F, H, G) = Apply2(G, F(a), H(a))
 // 		Pipe(F(2), F(1))
 
 
+// -------------------------------------------------------------------------------------
+// Working parsing
+// -------------------------------------------------------------------------------------
+
+
 // String wrap for ridicuilous operator name
 wrap = "operator.operators.integrateddynamics.@@@.name"
 wrapReplace = "@@@"
@@ -211,10 +218,10 @@ replAliases(list)::list
 // -------------------------------------------------------------------------------------
 
 // Get List of commands from string
-splitOnSpace(str)::[str]
+words(str)::[str]
   = Split_on(" ", str) 
 	<= Apply(Split_on, " ")
 
 // Parse whole code
 parse(str)::op
-  <= Pipe(splitOnSpace, parseList)
+  <= Pipe(words, parseList)
