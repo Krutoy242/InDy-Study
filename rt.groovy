@@ -99,6 +99,56 @@ Pipe2(F, H, G) = Apply2(G, F(a), H(a))
 "Pipe Flip integer.modulus 5 integer.increment"
 "Pipe Flip integer.modulus 5 integer.increment"
 
+// -------------------------------------------------------------------------------------
+// Working parsing
+// -------------------------------------------------------------------------------------
+
+
+// String wrap for ridicuilous operator name
+wrap = "operator.operators.integrateddynamics.@@@.name"
+wrapReplace = "@@@"
+
+// Makes an operator from string
+parseSimple(str)
+	= OpByName(Replace(wrapReplace, str, wrap))
+	<= Pipe(Apply(Flip(Apply(Replace, wrapReplace)), wrap), OpByName)
+
+// Simple reduce operator appling [n-1] element to [n] of list
+opReduce(op,s)::op
+	= op(parseSimple(s))
+	<= Apply(Pipe(parseSimple))
+
+// Parse list of operators
+parseList(list)::op
+	= Reduce(opReduce, Tail(list), parseSimple(Head(list)))
+	<= Pipe2(Tail, Pipe(Head, parseSimple), Apply(Reduce, opReduce))
+
+// -------------------------------------------------------------------------------------
+
+// Get List of commands from string
+words(str)::[str]
+  = Split_on(" ", str) 
+	<= Apply(Split_on, " ")
+
+// Parse whole code
+parse(str)::op
+  <= Pipe(words, parseList)
+
+// -------------------------------------------------------------------------------------
+"pipe (flip pipe) (flip pipe) pipe pipe (+1) (*2) (+3)"
+
+opReduce :: (a->b) -> String -> (a->c)
+opReduce op s = op(parseRcrsv(s))
+
+parseRcrsv str = choice (isCompound str) (parse str) (parseSimple str)
+
+parse str = pipe removeCatch(str) parseRcrsv
+
+
+// -------------------------------------------------------------------------------------
+// Outdated parsing operators
+// -------------------------------------------------------------------------------------
+
 // Get integer from string like "#5"
 // getInt("#5") >> 5 : int
 // getInt        =([str]={ }) => Pipe(getRgxInt ,op_parse_integer)
@@ -161,67 +211,3 @@ Pipe2(F, H, G) = Apply2(G, F(a), H(a))
 // 		Pipe(F, F(1))(2)
 // 		Pipe(F(2), F(1))
 
-
-// -------------------------------------------------------------------------------------
-// Working parsing
-// -------------------------------------------------------------------------------------
-
-
-// String wrap for ridicuilous operator name
-wrap = "operator.operators.integrateddynamics.@@@.name"
-wrapReplace = "@@@"
-
-// Makes an operator from string
-parseSimple(str)
-	= OpByName(Replace(wrapReplace, str, wrap))
-	<= Pipe(Apply(Flip(Apply(Replace, wrapReplace)), wrap), OpByName)
-
-// Simple reduce operator appling [n-1] element to [n] of list
-opReduce(op,s)::op
-	= op(parseSimple(s))
-	<= Apply(Pipe(parseSimple))
-
-// Parse list of operators
-parseList(list)::op
-	= Reduce(opReduce, Tail(list), parseSimple(Head(list)))
-	<= Pipe2(Tail, Pipe(Head, parseSimple), Apply(Reduce, opReduce))
-
-// -------------------------------------------------------------------------------------
-// Old Aliase replacing
-// -------------------------------------------------------------------------------------
-
-// Aliases variables
-enumAliases = List(0, 1, 2)
-listShort = [
-	^\.
-	parse_integer
-	\+\+
-]
-listNames = [
-	operator.pipe
-	parse.valuetype.valuetypes.integrateddynamics.integer
-	integer.increment
-]
-
-replaceWordOn(str, int)::op
-	= ReplaceRegex(Get(listShort, int), Get(listNames, int), str)
-
-// Takes map and returning operator 
-fox :: [a] -> (int -> string)
-fox	= Pipe2(Get(list, int), G(val, int), replaceWordOn)
-
-// Replace aliases
-replAliases(list)::list
-	= Map(fox(list), enumAliases)
-
-
-// -------------------------------------------------------------------------------------
-
-// Get List of commands from string
-words(str)::[str]
-  = Split_on(" ", str) 
-	<= Apply(Split_on, " ")
-
-// Parse whole code
-parse(str)::op
-  <= Pipe(words, parseList)
