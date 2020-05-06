@@ -39,25 +39,42 @@ reducer = pipe2 alsRgx alsWrd replace
 replList :: [String] -> [String]
 replList l = list_map (reduce reducer listAliases) l
 
--- Imitation of command string
-str = ". $ increment"
-str_split = split_on " " str
-
-flip_pipe = flip pipe
+---------------------------------
+-- Tests
+---------------------------------
 (.:) :: (c -> d) -> (a -> b -> c) -> a -> b -> d
-(.:) = pipe flip_pipe flip_pipe
+(.:) = pipe (flip pipe) (flip pipe)
+-- (.:) = pipe2 id id pipe (flip pipe)
+-- (.:) = pipe flip (pipe2 id id pipe) pipe
+
+
+h = pipe pipe pipe -- h :: (a -> b) -> ((a -> c) -> d) -> (b -> c) -> d
+-- f1 :: a -> b
+-- f2 :: (a -> c) -> d
+-- f3 :: b -> c
+-- h f1 f2 f3 a = f2 (f3 (f1 a))
+
+-- pipe pipe (flip pipe) -- (d -> b) -> (a -> b -> c) -> a -> d -> c
+-- f1 :: a -> b
+-- f2 :: c -> b -> d
+-- h f1 f2 a c = f2 c (f1 a)
 
 -- Test inliner
 f :: (Num a) => a -> a
 -- f = pipe (pipe (+1) (*2)) (+3)
 f = (.:) pipe pipe (+1) (*2) (+3)
+---------------------------------
+-- 
+---------------------------------
 
--- (a -> b) -> ((a -> c) -> d) -> (b -> c) -> d
 
+-- Imitation of command string
+str = ". $ increment"
+str_split = split_on " " str
 main :: IO()
 main = do
     print "--------------------"
-    print (f 5)
+    print ((flip .) . (flip .))
     print "List of aliases:"
     print listAliases
 
